@@ -1,12 +1,8 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import sqlite3
 from pathlib import Path
 
 app = Flask(__name__)
-
-# ==========================================
-# DATABASE CONFIGURATION
-# ==========================================
 
 DB_PATH = Path(__file__).with_name("students.db")
 
@@ -17,46 +13,32 @@ def get_db_connection():
     return connection
 
 
-# ==========================================
-# HOME
-# ==========================================
-
+# Homepage: display your website design
 @app.route('/')
 def home():
-    return "Welcome to my first API!"
+    return render_template('index.html')
 
 
-# ==========================================
-# STUDENT API
-# ==========================================
-
+# Get one student
 @app.route('/student')
 def get_student():
     return jsonify({
-        "student_id": "2024-00076",
+        "student_id": "2026-00076",
         "name": "Missy Miranda",
         "program": "BSIT",
         "year": 3,
-        "section": "DIJKSTRA"
+        "section": "3B"
     })
 
 
-# ==========================================
-# HELLO API
-# ==========================================
-
+# Greeting API
 @app.route('/hello')
 def say_hello():
     name = request.args.get('name', 'Student')
-    return jsonify({
-        "message": f"Hello, {name}!"
-    })
+    return jsonify({"message": f"Hello, {name}!"})
 
 
-# ==========================================
-# CAMPUS API
-# ==========================================
-
+# Campus API
 @app.route('/campus')
 def get_campus():
     return jsonify({
@@ -67,10 +49,7 @@ def get_campus():
     })
 
 
-# ==========================================
-# GRADE API
-# ==========================================
-
+# Grade API
 @app.route('/grade')
 def get_grade():
     return jsonify({
@@ -80,87 +59,60 @@ def get_grade():
     })
 
 
-# ==========================================
-# GET ALL STUDENTS
-# ==========================================
-
+# Get all students
 @app.route('/students')
 def get_all_students():
     connection = get_db_connection()
-
     try:
         students = connection.execute(
             'SELECT * FROM students ORDER BY id'
         ).fetchall()
-
         return jsonify([dict(student) for student in students])
-
     except sqlite3.Error:
         app.logger.exception("Unable to retrieve students")
         return jsonify({"error": "Database query failed"}), 500
-
     finally:
         connection.close()
 
 
-# ==========================================
-# GET STUDENT BY DATABASE ID
-# ==========================================
-
+# Get student by database ID
 @app.route('/students/<int:id>')
 def get_student_by_id(id):
     connection = get_db_connection()
-
     try:
         student = connection.execute(
-            'SELECT * FROM students WHERE id = ?',
-            (id,)
+            'SELECT * FROM students WHERE id = ?', (id,)
         ).fetchone()
 
         if student is None:
             return jsonify({"error": "Student not found"}), 404
 
         return jsonify(dict(student))
-
     except sqlite3.Error:
         app.logger.exception("Unable to retrieve student")
         return jsonify({"error": "Database query failed"}), 500
-
     finally:
         connection.close()
 
 
-# ==========================================
-# FILTER STUDENTS BY PROGRAM
-# ==========================================
-
+# Filter students by program
 @app.route('/students/program/<program>')
 def get_students_by_program(program):
     connection = get_db_connection()
-
     try:
         students = connection.execute(
-            '''
-            SELECT * FROM students
-            WHERE LOWER(program) = LOWER(?)
-            ORDER BY id
-            ''',
+            '''SELECT * FROM students
+               WHERE LOWER(program) = LOWER(?)
+               ORDER BY id''',
             (program,)
         ).fetchall()
-
         return jsonify([dict(student) for student in students])
-
     except sqlite3.Error:
         app.logger.exception("Unable to filter students")
         return jsonify({"error": "Database query failed"}), 500
-
     finally:
         connection.close()
 
-
-# ==========================================
-# RUN THE APPLICATION
-# ==========================================
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
