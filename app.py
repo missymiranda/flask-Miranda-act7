@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 import sqlite3
 from pathlib import Path
 
@@ -18,16 +18,16 @@ def get_db_connection():
 
 
 # ==========================================
-# HOME PAGE
+# HOME
 # ==========================================
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return "Welcome to my first API!"
 
 
 # ==========================================
-# GET ONE STUDENT
+# STUDENT API
 # ==========================================
 
 @app.route('/student')
@@ -37,7 +37,7 @@ def get_student():
         "name": "Missy Miranda",
         "program": "BSIT",
         "year": 3,
-        "section": "3B"
+        "section": "DIJKSTRA"
     })
 
 
@@ -81,7 +81,7 @@ def get_grade():
 
 
 # ==========================================
-# GET ALL STUDENTS FROM SQLITE
+# GET ALL STUDENTS
 # ==========================================
 
 @app.route('/students')
@@ -97,16 +97,14 @@ def get_all_students():
 
     except sqlite3.Error:
         app.logger.exception("Unable to retrieve students")
-        return jsonify({
-            "error": "Database query failed"
-        }), 500
+        return jsonify({"error": "Database query failed"}), 500
 
     finally:
         connection.close()
 
 
 # ==========================================
-# GET STUDENT BY ID
+# GET STUDENT BY DATABASE ID
 # ==========================================
 
 @app.route('/students/<int:id>')
@@ -120,17 +118,13 @@ def get_student_by_id(id):
         ).fetchone()
 
         if student is None:
-            return jsonify({
-                "error": "Student not found"
-            }), 404
+            return jsonify({"error": "Student not found"}), 404
 
         return jsonify(dict(student))
 
     except sqlite3.Error:
         app.logger.exception("Unable to retrieve student")
-        return jsonify({
-            "error": "Database query failed"
-        }), 500
+        return jsonify({"error": "Database query failed"}), 500
 
     finally:
         connection.close()
@@ -158,9 +152,7 @@ def get_students_by_program(program):
 
     except sqlite3.Error:
         app.logger.exception("Unable to filter students")
-        return jsonify({
-            "error": "Database query failed"
-        }), 500
+        return jsonify({"error": "Database query failed"}), 500
 
     finally:
         connection.close()
