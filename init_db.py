@@ -1,39 +1,62 @@
 import sqlite3
 from pathlib import Path
 
+# Locate the database beside this Python file
+DB_PATH = Path(__file__).with_name("students.db")
 
-database_path = Path(__file__).with_name("students.db")
-connection = sqlite3.connect(database_path)
-cursor = connection.cursor()
-cursor.execute(
-    """
-    CREATE TABLE IF NOT EXISTS students (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        student_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        program TEXT NOT NULL,
-        year INTEGER NOT NULL,
-        section TEXT NOT NULL
-    )
-    """
-)
-cursor.execute("DELETE FROM students")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'students'")
 
-students = [
-    ("SAMPLE-1001", "Alex Rivera", "BSIT", 1, "A"),
-    ("SAMPLE-1002", "Jamie Santos", "BSIT", 1, "B"),
-    ("SAMPLE-1003", "Morgan Lee", "BSCS", 2, "A"),
-    ("SAMPLE-1004", "Casey Flores", "BSIT", 3, "C"),
-    ("SAMPLE-1005", "Taylor Cruz", "BSCS", 4, "B"),
-]
-cursor.executemany(
-    """
-    INSERT INTO students (student_id, name, program, year, section)
-    VALUES (?, ?, ?, ?, ?)
-    """,
-    students,
-)
-connection.commit()
-connection.close()
-print("Database created successfully.")
+def initialize_database():
+    connection = sqlite3.connect(DB_PATH)
+
+    try:
+        cursor = connection.cursor()
+
+        # Create the students table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS students (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                program TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                section TEXT NOT NULL
+            )
+        """)
+
+        # Reset the sample data for this activity
+        cursor.execute("DELETE FROM students")
+        cursor.execute(
+            "DELETE FROM sqlite_sequence WHERE name = 'students'"
+        )
+
+        # Fictional sample student records
+        student_records = [
+            ("ISU-2026-201", "Avery Bennett", "BSIT", 1, "A"),
+            ("ISU-2026-202", "Riley Morgan", "BSIT", 2, "B"),
+            ("ISU-2026-203", "Jordan Ellis", "BSCS", 2, "A"),
+            ("ISU-2026-204", "Cameron Blake", "BSIT", 3, "C"),
+            ("ISU-2026-205", "Quinn Parker", "BSCS", 4, "B"),
+            ("ISU-2026-206", "Dakota Reed", "BSOA", 1, "C")
+        ]
+
+        cursor.executemany("""
+            INSERT INTO students (
+                student_id, name, program, year, section
+            )
+            VALUES (?, ?, ?, ?, ?)
+        """, student_records)
+
+        connection.commit()
+        print("Database created successfully.")
+        print(f"Inserted {len(student_records)} sample student records.")
+
+    except sqlite3.Error:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
+
+
+if __name__ == "__main__":
+    initialize_database()
