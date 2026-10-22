@@ -23,7 +23,7 @@ def initialize_database():
             )
         """)
 
-        # Clear existing sample records
+        # Reset the sample data for this activity
         cursor.execute("DELETE FROM students")
         cursor.execute(
             "DELETE FROM sqlite_sequence WHERE name = 'students'"
@@ -31,32 +31,24 @@ def initialize_database():
 
         # Fictional sample student records
         student_records = [
-            ("2024-0001", "Harper Collins", "BSIT", 1, "A"),
-            ("2024-0002", "Logan Mitchell", "BSIT", 2, "B"),
-            ("2024-0003", "Skyler Anderson", "BEED", 2, "A"),
-            ("2024-0004", "Peyton Brooks", "BSHM", 3, "C"),
-            ("2024-0005", "Emerson Bailey", "BSA", 4, "B"),
-            ("2024-0006", "Rowan Cooper", "BSOA", 1, "C")
+            ("SEC-2024-001", "Karol Vincent Pedregosa", "BSA", 4, "A"),
+            ("SEC-2024-002", "Rizza Anthea Miranda", "BSIT", 2, "B"),
+            ("SEC-2024-003", "Issah Kailah Javier", "BSCS", 2, "A"),
+            ("SEC-2024-004", "John Parker", "BSHM", 3, "C"),
+            ("SEC-2024-005", "Alexaandra Cruzr", "BSCS", 4, "B"),
+            ("SEC-2024-006", "Kate Santos", "BSOA", 1, "C")
         ]
 
-        # Insert the records into the database
         cursor.executemany("""
             INSERT INTO students (
-                student_id,
-                name,
-                program,
-                year,
-                section
+                student_id, name, program, year, section
             )
             VALUES (?, ?, ?, ?, ?)
         """, student_records)
 
         connection.commit()
-
         print("Database created successfully.")
-        print(
-            f"Inserted {len(student_records)} sample student records."
-        )
+        print(f"Inserted {len(student_records)} sample student records.")
 
     except sqlite3.Error:
         connection.rollback()
