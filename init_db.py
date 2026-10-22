@@ -35,7 +35,7 @@ def initialize_database():
             ("SEC-2024-002", "Rizza Anthea Miranda", "BSIT", 2, "B"),
             ("SEC-2024-003", "Issah Kailah Javier", "BSCS", 2, "A"),
             ("SEC-2024-004", "John Parker", "BSHM", 3, "C"),
-            ("SEC-2024-005", "Alexaandra Cruzr", "BSCS", 4, "B"),
+            ("SEC-2024-005", "Alexaandra Cruzr", "BSED", 4, "B"),
             ("SEC-2024-006", "Kate Santos", "BSOA", 1, "C")
         ]
 
